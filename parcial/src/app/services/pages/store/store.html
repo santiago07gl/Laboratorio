@@ -1,0 +1,74 @@
+<section class="page-content">
+  <div class="store-hero">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="status-dot"></span> Catálogo de demostración</span>
+      <h1>Lo bueno de<br><em>comer natural.</em></h1>
+      <p>Explora alimentos del catálogo de muestra y consulta su disponibilidad informativa.</p>
+      <a class="button button-light" href="#productos">Explorar productos <span aria-hidden="true">↓</span></a>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="hero-circle">
+        <span class="hero-fruit fruit-one">🍊</span>
+        <span class="hero-fruit fruit-two">🥑</span>
+        <span class="hero-fruit fruit-three">🍋</span>
+        <span class="hero-leaf">✳</span>
+      </div>
+      <span class="hero-sticker">FRESCO<br>Y LOCAL</span>
+    </div>
+  </div>
+
+  <section class="products-section" id="productos" aria-labelledby="products-heading">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Productos disponibles en la API</span>
+        <h2 id="products-heading">Algo rico para hoy</h2>
+      </div>
+      <label class="search-box">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <span class="visually-hidden">Buscar productos</span>
+        <input type="search" [(ngModel)]="searchTerm" placeholder="¿Qué se te antoja?" />
+      </label>
+    </div>
+
+    @if (isLoading) {
+      <div class="message-panel" role="status">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <p>Cargando productos del catálogo...</p>
+      </div>
+    } @else if (errorMessage) {
+      <div class="message-panel error-panel" role="alert">
+        <span class="message-icon" aria-hidden="true">!</span>
+        <p>{{ errorMessage }}</p>
+        <button class="button button-dark" type="button" (click)="loadProducts()">Intentar de nuevo</button>
+      </div>
+    } @else if (filteredProducts.length === 0) {
+      <div class="message-panel">
+        <span class="message-icon" aria-hidden="true">⌕</span>
+        <p>{{ products.length ? 'No encontramos productos con esa búsqueda.' : 'Todavía no hay productos para mostrar.' }}</p>
+      </div>
+    } @else {
+      <div class="product-grid">
+        @for (product of filteredProducts; track product.id) {
+          <article class="product-card">
+            <div class="product-image-wrap">
+              <img [src]="product.thumbnail" [alt]="product.title" loading="lazy" />
+              <span class="product-category">{{ formatCategory(product.category) }}</span>
+            </div>
+            <div class="product-info">
+              <div class="product-meta">
+                <span class="product-rating"><span aria-hidden="true">★</span> {{ product.rating | number: '1.1-1' }}</span>
+                <span>Stock: {{ product.stock }}</span>
+              </div>
+              <h3>{{ product.title }}</h3>
+              <p class="product-description">{{ product.description }}</p>
+              <div class="product-bottom">
+                <span class="product-price">{{ product.price | currency: 'USD':'symbol':'1.2-2':'en-US' }}</span>
+                <span class="product-note">referencial</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

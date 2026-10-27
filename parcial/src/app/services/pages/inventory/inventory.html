@@ -1,0 +1,77 @@
+<section class="page-content inventory-page">
+  <div class="inventory-heading">
+    <div>
+      <span class="eyebrow"><span class="status-dot"></span> Datos informativos</span>
+      <h1>Inventario <em>de despensa.</em></h1>
+      <p>Consulta el stock de los mismos productos que aparecen en la tienda.</p>
+    </div>
+    <div class="inventory-illustration" aria-hidden="true">▤</div>
+  </div>
+
+  <p class="inventory-notice">
+    <strong>Catálogo de demostración:</strong> estos datos vienen de una API de ejemplo. No se realizan
+    compras, reservas ni cambios de stock desde esta página.
+  </p>
+
+  @if (isLoading) {
+    <div class="message-panel" role="status">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <p>Cargando el inventario...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="message-panel error-panel" role="alert">
+      <span class="message-icon" aria-hidden="true">!</span>
+      <p>{{ errorMessage }}</p>
+      <button class="button button-dark" type="button" (click)="loadInventory()">Intentar de nuevo</button>
+    </div>
+  } @else if (products.length === 0) {
+    <div class="message-panel">
+      <span class="message-icon" aria-hidden="true">▤</span>
+      <p>El inventario no tiene productos para mostrar.</p>
+    </div>
+  } @else {
+    <div class="inventory-summary" aria-label="Resumen del inventario">
+      <article class="inventory-stat">
+        <span class="summary-label">Productos del catálogo</span>
+        <strong>{{ products.length }}</strong>
+      </article>
+      <article class="inventory-stat">
+        <span class="summary-label">Unidades en stock (referencial)</span>
+        <strong>{{ totalStock }}</strong>
+      </article>
+      <article class="inventory-stat">
+        <span class="summary-label">Precio promedio</span>
+        <strong>{{ averagePrice | currency: 'USD':'symbol':'1.2-2':'en-US' }}</strong>
+      </article>
+    </div>
+
+    <div class="inventory-table-wrap">
+      <table class="inventory-table">
+        <caption>Productos y stock reportados por la API de demostración</caption>
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col">Categoría</th>
+            <th scope="col">Precio referencial</th>
+            <th scope="col">Stock de muestra</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product.id) {
+            <tr>
+              <td>
+                <div class="inventory-product">
+                  <img [src]="product.thumbnail" [alt]="product.title" loading="lazy" />
+                  <span>{{ product.title }}</span>
+                </div>
+              </td>
+              <td>{{ product.category === 'groceries' ? 'Despensa' : product.category }}</td>
+              <td>{{ product.price | currency: 'USD':'symbol':'1.2-2':'en-US' }}</td>
+              <td><span class="stock-value">{{ product.stock }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
