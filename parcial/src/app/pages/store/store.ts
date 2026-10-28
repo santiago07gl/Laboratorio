@@ -1,28 +1,22 @@
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Product } from '../../models/store.models';
 import { ProductsService } from '../../services/products.service';
+import { Product } from '../../models/store.models';
 
 @Component({
-  selector: 'app-store-page',
-  imports: [CurrencyPipe, DecimalPipe, FormsModule],
-  templateUrl: './store.html'
+  selector: 'app-store',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './store.html',
 })
-export class StorePage implements OnInit {
+export class StorePage implements OnInit { 
   private readonly productsService = inject(ProductsService);
 
   products: Product[] = [];
-  searchTerm = '';
-  isLoading = true;
-  errorMessage = '';
-
-  get filteredProducts(): Product[] {
-    const term = this.searchTerm.trim().toLocaleLowerCase();
-    return this.products.filter((product) =>
-      `${product.title} ${product.description} ${product.category}`.toLocaleLowerCase().includes(term)
-    );
-  }
+  searchTerm: string = '';
+  isLoading: boolean = true;
+  errorMessage: string = '';
 
   ngOnInit(): void {
     this.loadProducts();
@@ -31,16 +25,31 @@ export class StorePage implements OnInit {
   loadProducts(): void {
     this.isLoading = true;
     this.errorMessage = '';
+
     this.productsService.getProducts().subscribe({
-      next: (products) => {
-        this.products = products;
+      next: (data: any) => {
+        this.products = Array.isArray(data) ? data : (data?.products || []);
         this.isLoading = false;
       },
-      error: () => {
-        this.errorMessage = 'No pudimos cargar los productos. Revisa tu conexión e inténtalo de nuevo.';
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = 'Error al cargar los productos desde la base de datos.';
         this.isLoading = false;
       }
     });
+  }
+
+  get filteredProducts(): Product[] {
+    if (!Array.isArray(this.products)) {
+      return [];
+    }
+    const term = this.searchTerm?.toLowerCase().trim();
+    if (!term) {
+      return this.products;
+    }
+    return this.products.filter(product =>
+      product.title?.toLowerCase().includes(term)
+    );
   }
 
   formatCategory(category: string): string {
